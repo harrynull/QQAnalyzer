@@ -51,8 +51,12 @@ class messages:
 				# create the next message
 				msg=message()
 				msg.time, msg.name, msg.qq=res[0]
-				self.user_qq_name[msg.qq]=msg.name
 				msg.name=msg.name.replace("\u202e","").replace("\u202d","")
+				msg.time=time_analyze_this;
+
+				# add/update the qq-name dict
+				self.user_qq_name[msg.qq]=msg.name
+
 				just_now=True
 			else:
 				# add to char content array
@@ -66,14 +70,55 @@ class messages:
 		return self.msgs;
 
 data = open(sys.argv[1],encoding="utf-8")
-msg = messages(data.readlines())
-stat={}
-for m in msg.getMessages():
-	try:
-		stat[m.qq]=stat[m.qq]+1
-	except KeyError:
-		stat[m.qq]=1
-output=open("res.txt","w",encoding="utf-8")
-for k,v in ((k, stat[k]) for k in sorted(stat, key=stat.get, reverse=True)):
-	output.write("%d\t\t%s (%s)\n"%(v,msg.user_qq_name[k],k))
+msgs = messages(data.readlines())
 data.close()
+
+# to analyze the relationship between the numbers of messages and days
+def analyze_all(msgs, min_unit):
+	time_start=int(msgs.msgs[0].time//min_unit)
+	stat={}
+	for m in msgs.getMessages():
+		key=int(m.time//min_unit-time_start)
+		try:
+			stat[key]=stat[key]+1
+		except KeyError:
+			stat[key]=1
+	return stat
+
+# to analyze the relationship between the numbers of messages and each day of weeks
+def analyze_week(msgs):
+	CHECK_INV=60*60*24 # a day
+	stat={}
+	for m in msgs.getMessages():
+		key=int(m.time//CHECK_INV%7)
+		try:
+			stat[key]=stat[key]+1
+		except KeyError:
+			stat[key]=1
+	return stat
+
+# to analyze the numbers of members' messages
+def analyze_user(msgs):
+	stat={}
+	for msg in msgs.getMessages():
+		try:
+			stat[msg.qq]=stat[msg.qq]+1
+		except KeyError:
+			stat[msg.qq]=1
+	return stat
+
+def print_plain(out,dic):
+	for (key, value) in stat.items():
+		out.write("%d,%s\n"%(key,value))
+
+def print_uv(out,dic,msgs):
+	for (k,v) in dic.items():
+		output.write("%d,%s,%s\n"%(v,msgs.user_qq_name[k],k))
+
+def print_uv_sorted(out,dic,msgs):
+	for (k,v) in ((k, dic[k]) for k in sorted(dic, key=dic.get, reverse=True)):
+		output.write("%d,%s,%s\n"%(v,msgs.user_qq_name[k],k))
+
+output=open("res.csv","w",encoding="utf-8")
+print_uv_sorted(output,analyze_user(msgs),msgs)
+output.close()
