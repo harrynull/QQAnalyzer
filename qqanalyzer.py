@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import time
 
 class message:
 	time=""
@@ -13,6 +14,7 @@ class message:
 class messages:
 	name=""
 	msgs=[]
+	user_qq_name={}
 	def __init__(self, file_content):
 		# define some constants, use the array index
 		GROUP_NAME_LINE=5
@@ -28,6 +30,7 @@ class messages:
 		prog_all=len(file_content)
 		prog_now=START_LINE
 		just_now=False # just after a new message, for optimizing
+		time_analyze=0
 
 		for line in file_content[8:]:
 			prog_now=prog_now+1
@@ -36,13 +39,19 @@ class messages:
 			if not res and not just_now: res=name_email.findall(line)
 
 			if res:
+				# check the time first
+				time_analyze_this=time.mktime(time.strptime(res[0][0], "%Y-%m-%d %H:%M:%S"))
+				if time_analyze_this<time_analyze: continue
+				time_analyze=time_analyze_this
+
 				# remove the blank element and add to the array
 				try: msg.content=msg.content[:-1]; self.msgs.append(msg);
 				except NameError: pass
 
 				# create the next message
 				msg=message()
-				msg.time, msg.name, msg.qq=list(res[0])
+				msg.time, msg.name, msg.qq=res[0]
+				self.user_qq_name[msg.qq]=msg.name
 				msg.name=msg.name.replace("\u202e","").replace("\u202d","")
 				just_now=True
 			else:
@@ -59,12 +68,12 @@ class messages:
 data = open(sys.argv[1],encoding="utf-8")
 msg = messages(data.readlines())
 stat={}
-for msg in msg.getMessages():
+for m in msg.getMessages():
 	try:
-		stat[msg.name]=stat[msg.name]+1
+		stat[m.qq]=stat[m.qq]+1
 	except KeyError:
-		stat[msg.name]=1
+		stat[m.qq]=1
 output=open("res.txt","w",encoding="utf-8")
 for k,v in ((k, stat[k]) for k in sorted(stat, key=stat.get, reverse=True)):
-	output.write("%d\t\t%s\n"%(v,k))
+	output.write("%d\t\t%s (%s)\n"%(v,msg.user_qq_name[k],k))
 data.close()
