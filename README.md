@@ -25,8 +25,8 @@ Analyze QQ groups' messages
 
   --no-bom					do not use bom in the output file
 
-  --no-cache					ignore the cache file(if has)
+  --no-cache					ignore the cache file (if any)
 
-  -qq QQ					only analyze specific qq, only available in all andweek mode
+  -qq QQ					only analyze specific qq, only available in "all" and "week" mode
 
   -min_unit MIN_UNIT				the min unit in the "all" mode,the default value is 1 week, the unit is second
