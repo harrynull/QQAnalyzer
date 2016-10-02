@@ -1,8 +1,8 @@
 import os
-import sys
 import re
 import time
 import pickle
+import argparse
 
 class message:
 	time=""
@@ -26,8 +26,10 @@ class messages:
 		name_email=re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) (.*)\<(.*?)\>\n")
 
 		# get the group name in the 5th line
-		self.name=(lambda line:line[line.index(":")+1:])(file_content[GROUP_NAME_LINE])
+		self.name=(lambda line:line[line.index(":")+1:-1])(file_content[GROUP_NAME_LINE])
 
+		print("Start analyze " + self.name + "...")
+		
 		if buffer_valid:
 			self.msgs=pickle.loads(buffer.read())
 			self.user_qq_name=pickle.loads(buffer2.read())
@@ -79,28 +81,47 @@ class messages:
 
 	def getMessages(self):
 		return self.msgs;
+		
+parser = argparse.ArgumentParser(description='Analyze QQ groups\' messages')
+parser.add_argument("input", help="the input file: QQ exported *.txt message file")
+parser.add_argument("-cache_input", help="the cache file", default="")
+parser.add_argument('--bom', dest='use_bom', action='store_true', help='use bom in the output file')
+parser.add_argument('--no-bom', dest='use_bom', action='store_false', help='do not use bom in the output file')
+parser.add_argument('--no-cache', dest='use_cache', action='store_false', help='ignore the cache file(if has)')
+parser.add_argument("mode", help="mode you want to use",choices =("user","all","week"), default="")
+parser.add_argument("-qq", help="only analyze specific qq, only available in all and week mode", default="")
+parser.add_argument("-min_unit", help="only analyze specific qq, only available in all mode, the default value is 1 week, the unit is second", default=60*60*24*7, type=int)
+parser.set_defaults(use_bom=True,use_cache=True)
+args = parser.parse_args()
 
-buffer_valid = os.path.exists(sys.argv[1]+".buffer");
-data = open(sys.argv[1],encoding="utf-8")
-buffer = open(sys.argv[1]+".buffer","rb" if buffer_valid else "wb")
-buffer2 = open(sys.argv[1]+".2.buffer","rb" if buffer_valid else "wb")
-msgs = messages(data.readlines(), buffer,buffer2, buffer_valid)
+file_name,cache_name=args.input,args.cache_input
+if cache_name=="": cache_name=file_name
+cache_extension=".cache"
+
+buffer_valid = os.path.exists(cache_name+".cache");
+data = open(file_name,encoding="utf-8")
+buffer = open(cache_name+cache_extension,"rb" if buffer_valid else "wb")
+buffer2 = open(cache_name+".2"+cache_extension,"rb" if buffer_valid else "wb")
+
+msgs = messages(data.readlines(), buffer,buffer2, buffer_valid and args.use_cache)
 data.close()
 buffer.close()
 # to analyze the relationship between the numbers of messages and days
-def analyze_all(msgs, min_unit):
+def analyze_all(msgs, min_unit, qq):
 	time_start=int(msgs.msgs[0].time//min_unit)
 	stat={}
 	for m in msgs.getMessages():
+		if m.qq != qq and qq!="": continue
 		key=int(m.time//min_unit-time_start)
 		stat[key]=stat.get(key, 0)+1
 	return stat
 
 # to analyze the relationship between the numbers of messages and each day of weeks
-def analyze_week(msgs):
+def analyze_week(msgs, qq):
 	CHECK_INV=60*60*24 # a day
 	stat={}
 	for m in msgs.getMessages():
+		if m.qq != qq and qq!="": continue
 		key=int(m.time//CHECK_INV%7)
 		stat[key]=stat.get(key, 0)+1
 	return stat
@@ -123,7 +144,17 @@ def print_uv(out,dic,msgs):
 def print_uv_sorted(out,dic,msgs):
 	for (k,v) in ((k, dic[k]) for k in sorted(dic, key=dic.get, reverse=True)):
 		output.write("%d,%s,%s\n"%(v,msgs.user_qq_name[k],k))
+		
 
-output=open("res.csv","w",encoding="utf-8")
-print_uv_sorted(output,analyze_user(msgs),msgs)
+
+output=open(file_name+".csv","w",encoding="utf_8_sig" if args.use_bom else "utf8")
+
+modes={
+"user": lambda:print_uv_sorted(output,analyze_user(msgs),msgs),
+"all": lambda:print_plain(output,analyze_all(msgs,args.min_unit,args.qq)),
+"week": lambda:print_plain(output,analyze_week(msgs,args.qq))
+}
+
+modes[args.mode]()
+
 output.close()
