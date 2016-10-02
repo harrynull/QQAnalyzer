@@ -90,7 +90,7 @@ parser.add_argument('--no-bom', dest='use_bom', action='store_false', help='do n
 parser.add_argument('--no-cache', dest='use_cache', action='store_false', help='ignore the cache file(if has)')
 parser.add_argument("mode", help="mode you want to use",choices =("user","all","week"), default="")
 parser.add_argument("-qq", help="only analyze specific qq, only available in all and week mode", default="")
-parser.add_argument("-min_unit", help="only analyze specific qq, only available in all mode, the default value is 1 week, the unit is second", default=60*60*24*7, type=int)
+parser.add_argument("-min_unit", help="the min unit in the \"all\" mode, the default value is 1 week, the unit is second", default=60*60*24*7, type=int)
 parser.set_defaults(use_bom=True,use_cache=True)
 args = parser.parse_args()
 

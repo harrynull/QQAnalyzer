@@ -1,7 +1,7 @@
 # QQAnalyzer
 A tool used to analyze QQ group's messages.
 
-
+Please run it with Python3
 
 ## Usage
 
@@ -29,4 +29,4 @@ Analyze QQ groups' messages
 
   -qq QQ					only analyze specific qq, only available in all andweek mode
 
-  -min_unit MIN_UNIT				only analyze specific qq, only available in all mode,the default value is 1 week, the unit is second
+  -min_unit MIN_UNIT				the min unit in the "all" mode,the default value is 1 week, the unit is second
