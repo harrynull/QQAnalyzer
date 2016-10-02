@@ -9,13 +9,13 @@ usage: qqanalyzer.py \[-h\]\[-cache_input CACHE_INPUT\] \[--bom\]\[--no-bom\] \[
 
 Analyze QQ groups' messages
 
-positional arguments:
+###positional arguments:
 
   input                 the input file: QQ exported *.txt message file
 
   {user,all,week}       mode you want to use
 
-optional arguments:
+###optional arguments:
 
   -h, --help					show this help message and exit
 
