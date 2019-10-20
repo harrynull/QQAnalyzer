@@ -5,28 +5,12 @@ Please run it with Python3
 
 ## Usage
 
-usage: qqanalyzer.py \[-h\]\[-cache_input CACHE_INPUT\] \[--bom\]\[--no-bom\] \[--no-cache\]\[-qq QQ\] \[-min_unit MIN_UNIT\] input {user,all,week}
+usage: `qqanalyzer.py \[-h\]\[-cache_input CACHE_INPUT\] \[--bom\]\[--no-bom\] \[--no-cache\]\[-qq QQ\] \[-min_unit MIN_UNIT\] input {user,all,week,hour}`
 
-Analyze QQ groups' messages
+Analyze QQ groups' messages. Input is the file name of the exported QQ message history.
 
-###positional arguments:
-
-  input                 the input file: QQ exported *.txt message file
-
-  {user,all,week}       mode you want to use
-
-###optional arguments:
-
-  -h, --help					show this help message and exit
-
-  -cache_input CACHE_INPUT			the cache file
-
-  --bom						use bom in the output file
-
-  --no-bom					do not use bom in the output file
-
-  --no-cache					ignore the cache file (if any)
-
-  -qq QQ					only analyze specific qq, only available in "all" and "week" mode
-
-  -min_unit MIN_UNIT				the min unit in the "all" mode,the default value is 1 week, the unit is second
+Modes:
+1. `user`: Number of messages by user.
+2. `all`: Number of messages by time.
+3. `week`: Number of messages by weekdays.
+4. `hour`: Number of messages by hours in a day.
