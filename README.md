@@ -5,7 +5,7 @@ Please run it with Python3
 
 ## Usage
 
-usage: `qqanalyzer.py \[-h\]\[-cache_input CACHE_INPUT\] \[--bom\]\[--no-bom\] \[--no-cache\]\[-qq QQ\] \[-min_unit MIN_UNIT\] input {user,all,week,hour}`
+Usage: `qqanalyzer.py \[-h\]\[-cache_input CACHE_INPUT\] \[--bom\]\[--no-bom\] \[--no-cache\]\[-qq QQ\] \[-min_unit MIN_UNIT\] input {user,all,week,hour}`
 
 Analyze QQ groups' messages. Input is the file name of the exported QQ message history.
 
